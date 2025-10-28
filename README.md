@@ -1,264 +1,216 @@
-# 📦 Project Setup
+# FastAPI Calculator - RESTful API Learning Guide
 
----
+**A comprehensive beginner-friendly project for learning RESTful APIs, testing, and containerization using FastAPI.**
 
-# 🧩 1. Install Homebrew (Mac Only)
+## What is a RESTful API?
 
-> Skip this step if you're on Windows.
+> **REST** (Representational State Transfer) is an architectural style for designing networked applications. A **RESTful API** is a web service that follows REST principles.
 
-Homebrew is a package manager for macOS.  
-You’ll use it to easily install Git, Python, Docker, etc.
+### Core Principles
 
-**Install Homebrew:**
+| Principle | Description |
+|-----------|-------------|
+| **Client-Server Architecture** | The client (browser/app) and server are separate |
+| **Stateless** | Each request contains all information needed; the server doesn't store client state |
+| **Resource-Based** | Everything is a "resource" (like `/add`, `/subtract`) |
+| **HTTP Methods** | Uses standard HTTP methods (GET, POST, PUT, DELETE) |
+| **JSON Format** | Data is typically exchanged in JSON format |
+
+### In This Project
+
+- **Resources**: Calculator operations (`/add`, `/subtract`, `/multiply`, `/divide`)
+- **HTTP Method**: POST (we send data to the server)
+- **Request Format**: JSON with two numbers: `{"a": 10, "b": 5}`
+- **Response Format**: JSON with result: `{"result": 15}` or error: `{"error": "message"}`
+
+
+## Project Overview
+
+This project is a **calculator application** that demonstrates RESTful API concepts through a simple, interactive web interface.
+
+| Component | Technology |
+|-----------|-----------|
+| 🎨 **Frontend** | HTML, CSS, JavaScript |
+| ⚙️ **Backend** | FastAPI (Python) |
+| 🧮 **Operations** | Add, Subtract, Multiply, Divide |
+| 🧪 **Testing** | Unit, Integration, E2E (Pytest, Playwright) |
+| 🐳 **Deployment** | Docker, Docker Compose, CI/CD |
+
+</div>
+
+### What I Learned
+
+<table>
+  <tr>
+    <td> Building RESTful APIs with FastAPI</td>
+    <td> Request/response handling</td>
+  </tr>
+  <tr>
+    <td> Error handling and validation</td>
+    <td> Writing comprehensive tests</td>
+  </tr>
+  <tr>
+    <td> Docker containerization</td>
+    <td> CI/CD with GitHub Actions</td>
+  </tr>
+  <tr>
+    <td> Security best practices</td>
+    <td> API documentation (Swagger/ReDoc)</td>
+  </tr>
+</table>  
+
+### Request Flow:
+
+1. User enters numbers in the browser
+2. JavaScript sends POST request to API endpoint
+3. FastAPI receives and validates the request
+4. Operation function performs calculation
+5. FastAPI returns JSON response
+6. JavaScript displays result to user
+
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+- **Python 3.10+** installed
+- **Git** installed and configured
+- **Docker Desktop** (optional, for containerization)
+- A **text editor** (VS Code recommended)
+- Basic knowledge of **Python** and **command line**
+
+### Check Installations:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+python --version    # Should show Python 3.10 or higher
+git --version       # Should show Git version
+docker --version    # Should show Docker version (if installed)
 ```
 
-**Verify Homebrew:**
 
+## Understanding the API
+
+### API Endpoints
+
+| Endpoint | Method | Description | Example Request | Example Response |
+|----------|--------|-------------|-----------------|------------------|
+| `/` | GET | Serves homepage | - | HTML page |
+| `/add` | POST | Adds two numbers | `{"a": 10, "b": 5}` | `{"result": 15}` |
+| `/subtract` | POST | Subtracts b from a | `{"a": 10, "b": 5}` | `{"result": 5}` |
+| `/multiply` | POST | Multiplies two numbers | `{"a": 10, "b": 5}` | `{"result": 50}` |
+| `/divide` | POST | Divides a by b | `{"a": 10, "b": 2}` | `{"result": 5.0}` |
+
+### Testing Endpoints with cURL
+
+**Addition:**
 ```bash
-brew --version
+curl -X POST "http://localhost:8000/add" \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10, "b": 5}'
 ```
 
-If you see a version number, you're good to go.
-
----
-
-# 🧩 2. Install and Configure Git
-
-## Install Git
-
-- **MacOS (using Homebrew)**
-
+**Division by Zero (Error Handling):**
 ```bash
-brew install git
+curl -X POST "http://localhost:8000/divide" \
+  -H "Content-Type: application/json" \
+  -d '{"a": 10, "b": 0}'
 ```
 
-- **Windows**
-
-Download and install [Git for Windows](https://git-scm.com/download/win).  
-Accept the default options during installation.
-
-**Verify Git:**
-
-```bash
-git --version
+**Expected Error Response:**
+```json
+{
+  "error": "Cannot divide by zero!"
+}
 ```
 
----
+### Interactive API Documentation
 
-## Configure Git Globals
+FastAPI automatically generates interactive documentation:
 
-Set your name and email so Git tracks your commits properly:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your_email@example.com"
+
+###  Why Use Docker?
+
+| Benefit | Description |
+|---------|-------------|
+| **Consistency** | Works the same on all machines |
+| **Isolation** | Dependencies don't conflict with your system |
+| **Portability** | Easy to deploy anywhere |
+| **Scalability** | Can run multiple containers |  
+
+
+
+##  Project Structure
+
 ```
-
-Confirm the settings:
-
-```bash
-git config --list
-```
-
----
-
-## Generate SSH Keys and Connect to GitHub
-
-> Only do this once per machine.
-
-1. Generate a new SSH key:
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-(Press Enter at all prompts.)
-
-2. Start the SSH agent:
-
-```bash
-eval "$(ssh-agent -s)"
-```
-
-3. Add the SSH private key to the agent:
-
-```bash
-ssh-add ~/.ssh/id_ed25519
-```
-
-4. Copy your SSH public key:
-
-- **Mac/Linux:**
-
-```bash
-cat ~/.ssh/id_ed25519.pub | pbcopy
-```
-
-- **Windows (Git Bash):**
-
-```bash
-cat ~/.ssh/id_ed25519.pub | clip
-```
-
-5. Add the key to your GitHub account:
-   - Go to [GitHub SSH Settings](https://github.com/settings/keys)
-   - Click **New SSH Key**, paste the key, save.
-
-6. Test the connection:
-
-```bash
-ssh -T git@github.com
-```
-
-You should see a success message.
-
----
-
-# 🧩 3. Clone the Repository
-
-Now you can safely clone the course project:
-
-```bash
-git clone <repository-url>
-cd <repository-directory>
-```
-
----
-
-# 🛠️ 4. Install Python 3.10+
-
-## Install Python
-
-- **MacOS (Homebrew)**
-
-```bash
-brew install python
-```
-
-- **Windows**
-
-Download and install [Python for Windows](https://www.python.org/downloads/).  
-✅ Make sure you **check the box** `Add Python to PATH` during setup.
-
-**Verify Python:**
-
-```bash
-python3 --version
-```
-or
-```bash
-python --version
-```
-
----
-
-## Create and Activate a Virtual Environment
-
-(Optional but recommended)
-
-```bash
-python3 -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate.bat  # Windows
-```
-
-### Install Required Packages
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# 🐳 5. (Optional) Docker Setup
-
-> Skip if Docker isn't used in this module.
-
-## Install Docker
-
-- [Install Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
-- [Install Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
-
-## Build Docker Image
-
-```bash
-docker build -t <image-name> .
-```
-
-## Run Docker Container
-
-```bash
-docker run -it --rm <image-name>
+fastapi-calculator/
+├── app/
+│   └── operations/
+│       └── __init__.py          # Calculator functions (add, subtract, etc.)
+├── templates/
+│   └── index.html               # Frontend HTML interface
+├── tests/
+│   ├── unit/
+│   │   └── test_calculator.py   # Unit tests for operations
+│   ├── integration/
+│   │   └── test_fastapi_calculator.py  # API endpoint tests
+│   └── e2e/
+│       └── test_e2e.py          # Browser-based tests
+├── .github/
+│   └── workflows/
+│       └── test.yml             # CI/CD pipeline configuration
+├── main.py                      # FastAPI application entry point
+├── Dockerfile                   # Docker image instructions
+├── docker-compose.yml           # Docker Compose configuration
+├── requirements.txt             # Python dependencies
+├── pytest.ini                   # Pytest configuration
+└── README.md                    # This file
 ```
 
 ---
 
-# 🚀 6. Running the Project
+## Key Concepts
 
-- **Without Docker**:
+### 1. FastAPI Framework
 
-```bash
-python main.py
+FastAPI is a modern Python web framework with:
+- **Fast**: High performance (on par with NodeJS)
+- **Type Hints**: Uses Python type hints for validation
+- **Auto Documentation**: Generates Swagger/ReDoc automatically
+- **Async Support**: Handles concurrent requests efficiently
+
+### 2. Pydantic Models
+
+Define data structure and validation:
+
+```python
+class OperationRequest(BaseModel):
+    a: float = Field(..., description="The first number")
+    b: float = Field(..., description="The second number")
 ```
 
-(or update this if the main script is different.)
+This ensures:
+- Only numbers are accepted
+- Both fields are required
+- Automatic validation errors if data is invalid
 
-- **With Docker**:
+### 3. HTTP Status Codes
 
-```bash
-docker run -it --rm <image-name>
+- **200 OK**: Request succeeded
+- **400 Bad Request**: Invalid input (e.g., division by zero)
+- **500 Internal Server Error**: Server-side error
+
+### 4. JSON (JavaScript Object Notation)
+
+A lightweight data format:
+
+```json
+{
+  "a": 10,
+  "b": 5
+}
 ```
 
----
-
-# 📝 7. Submission Instructions
-
-After finishing your work:
-
-```bash
-git add .
-git commit -m "Complete Module X"
-git push origin main
-```
-
-Then submit the GitHub repository link as instructed.
-
----
-
-# 🔥 Useful Commands Cheat Sheet
-
-| Action                         | Command                                          |
-| ------------------------------- | ------------------------------------------------ |
-| Install Homebrew (Mac)          | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
-| Install Git                     | `brew install git` or Git for Windows installer |
-| Configure Git Global Username  | `git config --global user.name "Your Name"`      |
-| Configure Git Global Email     | `git config --global user.email "you@example.com"` |
-| Clone Repository                | `git clone <repo-url>`                          |
-| Create Virtual Environment     | `python3 -m venv venv`                           |
-| Activate Virtual Environment   | `source venv/bin/activate` / `venv\Scripts\activate.bat` |
-| Install Python Packages        | `pip install -r requirements.txt`               |
-| Build Docker Image              | `docker build -t <image-name> .`                |
-| Run Docker Container            | `docker run -it --rm <image-name>`               |
-| Push Code to GitHub             | `git add . && git commit -m "message" && git push` |
-
----
-
-# 📋 Notes
-
-- Install **Homebrew** first on Mac.
-- Install and configure **Git** and **SSH** before cloning.
-- Use **Python 3.10+** and **virtual environments** for Python projects.
-- **Docker** is optional depending on the project.
-
----
-
-# 📎 Quick Links
-
-- [Homebrew](https://brew.sh/)
-- [Git Downloads](https://git-scm.com/downloads)
-- [Python Downloads](https://www.python.org/downloads/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [GitHub SSH Setup Guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+Easy for both humans and machines to read/write.
